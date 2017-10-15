@@ -1,0 +1,311 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="manifest" href="site.webmanifest">
+        <link rel="apple-touch-icon" href="icon.png">
+        <!-- Place favicon.ico in the root directory -->
+        <link rel="stylesheet" href="css/main.css">
+        <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js" ></script>
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    </head>
+
+    <style>
+        body {
+            background: #fff;
+            font-family: Montserrat;
+        }
+
+        #draggableMustache { width: 70px; height: 70px; top:51%; left:33%; padding: 0.5em; }
+
+        .bubble {
+            width: 100px; top:2%; right:2%; padding: 1em;
+            background: white;
+            border-radius: 1em;
+            position:absolute;
+            font-size: 0.7em;
+        }
+
+        .bubble:after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 20px;
+            border-width: 10px 10px 0;
+            border-style: solid;
+            border-color: white transparent;
+            display: block;
+            width: 0;
+        }
+
+
+        .card {
+            border-radius: 1em;
+        }
+
+        .your-photo {
+            height: 20em;
+            width:20em;
+            background: #444;
+            overflow: hidden;
+            position:relative;
+
+            align-self: flex-end;
+        }
+
+
+        .content {
+            display: flex;
+            justify-content: center;
+            padding-top:2em;
+            padding-bottom:2em;
+        }
+
+        .content div {
+            align-self: flex-end;
+        }
+
+        .tools {
+            width:4em;
+            margin: 0 1em;
+            color: grey;
+            padding-top:4em;
+            align-self: flex-end;
+        }
+
+        .tools img {
+            width: 100%;
+        }
+
+        .tools a {
+            padding: .5em;
+            display: block;
+        }
+
+        .tools a.selected {
+            border: 1px solid orange;
+            border-radius: 1em;
+        }
+
+        .your-photo #photo1 {
+            width: 100%;
+            height: 100%;
+            position:absolute;
+            background-size: cover;
+            background-image: url(img/holder.jpg);
+            background-position: center;
+            filter: grayscale(100%);
+        }
+
+        .your-photo #photo2 {
+            width: 100%;
+            height: 100%;
+            position:absolute;
+            background-size: cover;
+            background-image: url(img/holder.jpg);
+            background-position: center;
+        }
+
+        .header {
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 4em;
+            margin: 0;
+            line-height: 1em;
+        }
+
+        .header h2 {
+            font-size: 1em;
+        }
+
+        .drag-mustache {
+            width: 100%;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+        .custom-file-upload {
+            border: 1px solid orange;
+            color: orange;
+            display: inline-block;
+            padding: 6px 12px;
+            cursor: pointer;
+            text-align: center;
+            position: absolute;
+            bottom: 1em;
+            right:1em;
+            border-radius: 1em;
+            background: white;
+            font-size: 0.7em;
+
+        }
+
+        .footer {
+            padding:2em 0;
+            width: 50em;
+            margin: auto;
+        }
+
+        .phone-cover {
+            width: 100px;
+            float:left;
+            margin-right: 20px;
+        }
+
+        .buynow {
+            background: orange;
+            border-radius: 1em;
+            padding: 0.5em 1em;
+            color: white;
+            text-decoration: none;
+        }
+
+        .messageChanger {
+            margin-bottom: 3em;
+
+        }
+
+        .messageChanger img {
+            width: 100%;
+        }
+
+
+    </style>
+
+
+    <script>
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+//                    $('#photo')
+//                        .attr('backgroundImage', e.target.result);
+                    $('#photo1')
+                        .css('background-image','url('+e.target.result+')');
+                    $('#photo2')
+                        .css('background-image','url('+e.target.result+')');
+                };
+
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        var currentMessage = 0;
+        var messages = [
+            [
+                "Hey Jake! 😃 Can I take a peel at your presentation when it's ready thanks!!!! 😃😃",
+                "Send me the presentation by the end of the day"
+            ],
+            [
+                "Thank you for articulating that was so clearly",
+                "Yes, that's exactly what I just said"
+            ],
+            [
+                "I'm sorry, are these number right? Im not 100% sure, I hate numbers.",
+                "These number are wrong."
+            ],
+            [
+                "I'm just thinking out loud here...",
+                "I have an idea"
+            ]
+        ];
+
+        function changeMustache(id,style) {
+            resetTools();
+            $('#tool'+id).addClass("selected");
+            $('#mustache')
+                .attr('src','img/mustache'+id+'.png');
+            $('#mustacheStyle').text( style );
+        }
+
+        function changeMessage() {
+            currentMessage++;
+            if(currentMessage > (messages.length - 1)) currentMessage = 0;
+            var msg = messages[currentMessage];
+            $('#bubble1').text( msg[0] );
+            $('#bubble2').text( msg[1] );
+        }
+
+        function resetTools(){
+            $('#tool2').removeClass("selected");
+            $('#tool3').removeClass("selected");
+            $('#tool4').removeClass("selected");
+            $('#tool5').removeClass("selected");
+            $('#tool6').removeClass("selected");
+        }
+
+        $( function() {
+            $( "#draggableMustache" ).draggable();
+            $( "#draggableBubble" ).draggable();
+        } );
+
+
+    </script>
+
+    <body>
+
+        <div class="header">
+            <img src="img/mustache1.png" style="width: 100px"/>
+            <h1>Magic Mustache</h1>
+            <h2>The fun way to be taken seriously</h2>
+        </div>
+
+        <div class="content">
+            <div>
+                <p>Without magic</p>
+                <div class="your-photo card">
+                    <div id="photo1"></div>
+                    <div id="bubble1" class="bubble">
+                        I need the report by monday!
+                    </div>
+                </div>
+            </div>
+
+            <div class="tools">
+                <a href="javascript:changeMessage();" class="messageChanger"><img src="img/messageChanger.png"/></a>
+                <a href="javascript:changeMustache(3,'The Boss')" id="tool3"  class="selected"><img src="img/mustache3.png"/></a>
+                <a href="javascript:changeMustache(5,'The Distinguisher')" id="tool5"><img src="img/mustache5.png"/></a>
+                <a href="javascript:changeMustache(2,'Genius Visionary')" id="tool2"><img src="img/mustache2.png"/></a>
+                <a href="javascript:changeMustache(4,'The Dignified Grey Streaked')" id="tool4"><img src="img/mustache4.png"/></a>
+            </div>
+
+            <div>
+                <p style="color: orange">With magic<br/>
+                    <small id="mustacheStyle">Just a mustache</small>
+                </p>
+                <div class="your-photo card">
+                    <div id="photo2"></div>
+                    <div id="draggableMustache">
+                        <img id="mustache" class="drag-mustache" src="img/mustache3.png" />
+                    </div>
+                    <div id="bubble2" class="bubble">
+                        I need the report by monday!
+                    </div>
+                    <label class="custom-file-upload">
+                        <input type="file" onchange="readURL(this);"/>
+                        <i class="fa fa-cloud-upload"></i> Feel the magic
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <img src="img/cover1.jpg" class="phone-cover">
+            <h2>Your smartphone cover that stores that magic.</h2>
+            <a href="#" class="buynow">Buy now</a>
+        </div>
+
+    <script>
+        changeMessage();
+    </script>
+    </body>
+</html>
